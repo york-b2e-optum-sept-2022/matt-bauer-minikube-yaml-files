@@ -1,0 +1,25 @@
+how to launch in minikube properly
+
+in terminal (in proper folder):
+kubectl apply -f ProcessManager-configmap.yaml
+kubectl apply -f ProcessManager-secret.yaml
+### configmap and secret must be launched before deployments
+kubectl apply -f ProcessManager-postgres.yaml
+minikube image load capstone-be:latest
+minikube image load capstone-editor-fe:latest
+minikube image load capstone-follower-fe:latest
+### local computer images must be loaded into minikube virtual environment
+kubectl apply -f ProcessManager-be.yaml
+kubectl apply -f ProcessManager-editor-fe.yaml
+kubectl apply -f ProcessManager-follower-fe.yaml
+### project should be launched in minikube
+kubectl get all
+### checks status of all components
+minikube dashboard
+### launches a GUI to interact with minikube, click on services then the IP links to launch fe in browser
+
+
+*** if you are not able to get it to show in browser, you may need to open a new terminal and write command:
+minikube tunnel
+***then try launching dashboard again
+

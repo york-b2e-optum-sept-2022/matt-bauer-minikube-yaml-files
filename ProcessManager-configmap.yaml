@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: process-manager-configmap
+data:
+  POSTGRES_DB: jdbc:postgresql://postgres-service/postgres #name of database service

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: editor-fe
+  labels: 
+    app: editor-fe #used for service to id pods
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: editor-fe #used for replicaset
+  template: #template is pod information
+    metadata:
+      labels:
+        app: editor-fe
+    spec:
+      containers:
+        - name: editor-fe
+          image: capstone-editor-fe:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: editor-fe-service
+spec:
+  selector:
+    app: editor-fe #used to connect to pods
+  type: LoadBalancer #tells service to accept external requests through external IP
+  ports:
+    - protocol: TCP
+      port: 3000 #internal service port
+      targetPort: 80 #same as container of deployment port
+  

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+  labels: 
+    app: postgres #used for service to id pods
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres #used for replicaset
+  template: #template is pod information
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret #same as secretfile/metatdata/name
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+                  # containerPort is default port found in mongo image docs
+--- #this means document separation, above is delpyment, below is service for that deployment
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  selector:
+    app: postgres #used to connect to pods
+  ports:
+    - protocol: TCP
+      port: 5432 #service port
+      targetPort: 5432 #same as container of deployment port
+
+      # this service configuration is for an internal service (not accessed through exteral port)

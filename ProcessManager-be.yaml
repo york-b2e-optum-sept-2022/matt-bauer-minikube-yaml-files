@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels: 
+    app: backend #used for service to id pods
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend #used for replicaset
+  template: #template is pod information
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: capstone-be:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret #same as secretfile/metatdata/name
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: SPRING_DATASOURCE_URL
+              valueFrom: 
+                configMapKeyRef:
+                  name: process-manager-configmap
+                  key: POSTGRES_DB
+
+                  # this is a backend, needs to know which database to connect to (using a configMap), and credentials
+                  # on docs for image, look up environmental variables to know what keys it wants
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend #used to connect to pods
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8080 #internal service port
+      targetPort: 8080 #same as container of deployment port
+    
